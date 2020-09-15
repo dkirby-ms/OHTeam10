@@ -28,7 +28,7 @@
 # `docs/build-app/troubleshooting.md`.
 #docs/*  docs@example.com
 
-/apis/poi           @rasalman
+/apis/poi           @javieriroman
 /apis/trips         @jostrandig
 /apis/user-java     @rasalman
 /apis/userprofile   @ahjcloud
