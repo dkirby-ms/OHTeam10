@@ -59,7 +59,7 @@ jobs:
       run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:$(date +%s)
 
     - name: Login to ACR registry
-      run: docker login https://{{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+      run: docker login https://${{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
 
     - name: Push image to ACR
       run: |
