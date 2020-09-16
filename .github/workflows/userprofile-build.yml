@@ -58,7 +58,7 @@ jobs:
     - name: build docker image and push to ACR
       run: |
         # Build the image
-        IMAGEID='${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${​​{ ​​github.run_number }​​}​​'
+        IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:1​​
         docker build . --file Dockerfile --tag $IMAGEID
         # Login to ACR
         docker login https://${{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
