@@ -64,7 +64,7 @@ jobs:
         
         # Build the image
         # IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}
-        pwd
+        ls
         docker build apis/poi/web --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
 
         # Push Image to ACR
