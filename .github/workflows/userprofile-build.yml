@@ -62,7 +62,7 @@ jobs:
 
     - name: Push image to ACR
       run: |
-        IMAGE_ID=openhackpdr15ay7acr.azurecr.io/$${ github.repository_owner }}/$IMAGENAME
+        IMAGE_ID=openhackpdr15ay7acr.azurecr.io/$IMAGENAME
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
