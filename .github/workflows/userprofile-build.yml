@@ -27,9 +27,11 @@ on:
       - '.github/workflows/userprofile-build.yml'
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
+  AZURE_WEBAPP_NAME: openhackpdr15ay7userprofile    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                # set this to the node version to use
+  IMAGE_NAME: 'devopsoh/api-userprofile'
+  ACRURI: 'openhackpdr15ay7acr.azurecr.io'
 
 jobs:
   build-and-deploy:
@@ -52,12 +54,26 @@ jobs:
         npm install
         npm run build --if-present
         npm run test --if-present
-    # - name: 'Deploy to Azure WebApp'
-    #   uses: azure/webapps-deploy@v2
-    #   with:
-    #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
-    #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+    - name: build docker image and push to ACR
+      run: |
+        # Login to ACR
+        docker login https://${{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+        
+        # Build the image
+        # IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}
+        docker build . --file Dockerfile --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
+
+        # Push Image to ACR
+        docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
+
+    - name: update ASE with new image
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AS_USERPROFILE_PUBLISHPROFILE }}
+        images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+
 
     - uses: actions/github-script@0.9.0
       if: failure()
@@ -71,3 +87,5 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! Userprofile build ",
             body: body
           });
+    
+    

@@ -12,11 +12,20 @@ on:
       - 'apis/poi/**'
       - '.github/workflows/poi-build.yml'
 
+env:
+  AZURE_WEBAPP_NAME: openhackpdr15ay7poi    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '10.x'                # set this to the node version to use
+  IMAGE_NAME: 'devopsoh/api-poi'
+  ACRURI: 'openhackpdr15ay7acr.azurecr.io'
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash
+        working-directory: apis/poi
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -24,14 +33,13 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore apis/poi/poi.sln
+      run: dotnet restore poi.sln
     - name: Build Test 
-      run: dotnet build --configuration Release --no-restore apis/poi/tests/UnitTests/UnitTests.csproj
+      run: dotnet build --configuration Release --no-restore tests/UnitTests/UnitTests.csproj
     - name: Build
-      run: dotnet build --configuration Release --no-restore apis/poi/poi.sln
+      run: dotnet build --configuration Release --no-restore poi.sln
     - name: Test
-      run: dotnet test --no-restore --verbosity normal apis/poi/tests/UnitTests
-
+      run: dotnet test --no-restore --verbosity normal tests/UnitTests
     - uses: actions/github-script@0.9.0
       if: failure()
       with:
@@ -42,5 +50,42 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! - POI Build ",
+            body: body
+          });
+  deploy:
+    #if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - name: push to ACR and app service
+      run: |
+        # Login to ACR
+        docker login https://${{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+        
+        # Build the image
+        # IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}
+        docker build ./apis/poi/web --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
+
+        # Push Image to ACR
+        docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
+
+    - name: update ASE with new image
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AS_POI_PUBLISHPROFILE }}
+        images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+
+    - uses: actions/github-script@0.9.0
+      if: failure()
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          let body = "${{ env.build_name }} Worflow Failure \n Build Number: ${{ github.run_number }} \n Build Log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} \n SHA: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) \n";
+          github.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! - POI Deploy ",
             body: body
           });
