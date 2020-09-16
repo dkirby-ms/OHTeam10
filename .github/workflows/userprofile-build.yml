@@ -30,7 +30,8 @@ env:
   AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                # set this to the node version to use
-  IMAGENAME: 'api-userprofile'
+  IMAGE_NAME: 'api-userprofile'
+  ACRURI: 'openhackpdr15ay7acr.azurecr.io'
 
 jobs:
   build-and-deploy:
@@ -55,14 +56,14 @@ jobs:
         npm run test --if-present
 
     - name: build docker image
-      run: docker build . --file Dockerfile --tag ${{ env.IMAGENAME }}:$(date +%s)
+      run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:$(date +%s)
 
     - name: Login to ACR registry
-      run: docker login https://openhackpdr15ay7acr.azurecr.io -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+      run: docker login https://{{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
 
     - name: Push image to ACR
       run: |
-        IMAGE_ID=openhackpdr15ay7acr.azurecr.io/$IMAGENAME
+        IMAGE_ID={{ env.ACRURI }}/$IMAGE_NAME
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
