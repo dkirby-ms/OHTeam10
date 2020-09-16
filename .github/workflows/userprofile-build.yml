@@ -27,7 +27,7 @@ on:
       - '.github/workflows/userprofile-build.yml'
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
+  AZURE_WEBAPP_NAME: openhackpdr15ay7userprofile    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                # set this to the node version to use
   IMAGE_NAME: 'devopsoh/api-userprofile'
@@ -67,6 +67,14 @@ jobs:
         # Push Image to ACR
         docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
 
+    - name: update ASE with new image
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AS_USERPROFILE_PUBLISHPROFILE }}
+        package: $ACRURI/$IMAGE_NAME:${{ github.run_number }}
+
+
     - uses: actions/github-script@0.9.0
       if: failure()
       with:
@@ -79,3 +87,5 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! Userprofile build ",
             body: body
           });
+    
+    
