@@ -63,7 +63,7 @@ jobs:
 
     - name: Push image to ACR
       run: |
-        IMAGE_ID={{ env.ACRURI }}/$IMAGE_NAME
+        IMAGE_ID=${{ env.ACRURI }}/$IMAGE_NAME
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
