@@ -28,6 +28,6 @@ jobs:
     - name: Build Test 
       run: dotnet build --configuration Release --no-restore apis/poi/tests/UnitTests/UnitTests.csproj
     - name: Build
-      run: dotnet build --configuration Release --no-restore apis/poi/*.csproj
+      run: dotnet build --configuration Release --no-restore apis/poi/poi.sln
     - name: Test
       run: dotnet test --no-restore --verbosity normal apis/poi/tests/UnitTests
