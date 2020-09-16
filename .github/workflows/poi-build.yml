@@ -34,13 +34,13 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore apis/poi/poi.sln
+      run: dotnet restore poi.sln
     - name: Build Test 
-      run: dotnet build --configuration Release --no-restore apis/poi/tests/UnitTests/UnitTests.csproj
+      run: dotnet build --configuration Release --no-restore tests/UnitTests/UnitTests.csproj
     - name: Build
-      run: dotnet build --configuration Release --no-restore apis/poi/poi.sln
+      run: dotnet build --configuration Release --no-restore poi.sln
     - name: Test
-      run: dotnet test --no-restore --verbosity normal apis/poi/tests/UnitTests
+      run: dotnet test --no-restore --verbosity normal tests/UnitTests
 
     - name: build docker image and push to ACR
       run: |
