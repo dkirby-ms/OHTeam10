@@ -72,7 +72,7 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AS_USERPROFILE_PUBLISHPROFILE }}
-        package: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+        images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
 
 
     - uses: actions/github-script@0.9.0
