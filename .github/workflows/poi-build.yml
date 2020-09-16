@@ -2,15 +2,15 @@ name: .NET Core
 
 on:
   push:
-    branches: master
-      paths:
-        - 'apis/poi/**'
-        - '.github/workflows/poi-build.yml'
+    branches: [ master ]
+    paths:
+      - 'apis/poi/**'
+      - '.github/workflows/poi-build.yml'
   pull_request:
-    branches: master
-      paths:
-        - 'apis/poi/**'
-        - '.github/workflows/poi-build.yml'
+    branches: [ master ]
+    paths:
+      - 'apis/poi/**'
+      - '.github/workflows/poi-build.yml'
 
 jobs:
   build:
