@@ -1,37 +1,36 @@
-name: POI.NET Core
+name: UserJavaBuild
 
 on:
   push:
     branches: [ master ]
     paths:
-      - 'apis/poi/**'
-      - '.github/workflows/poi-build.yml'
+      - 'apis/user-java/**'
+      - '.github/workflows/userjava-build.yml'
   pull_request:
     branches: [ master ]
     paths:
-      - 'apis/poi/**'
-      - '.github/workflows/poi-build.yml'
-
+      - 'apis/user-java/**'
+      - '.github/workflows/userjava-build.yml'
 jobs:
+
   build:
-
+    name: Build
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash
+        working-directory: apis/user-java
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
       with:
-        dotnet-version: 3.1.301
-    - name: Install dependencies
-      run: dotnet restore apis/poi/poi.sln
-    - name: Build Test 
-      run: dotnet build --configuration Release --no-restore apis/poi/tests/UnitTests/UnitTests.csproj
-    - name: Build
-      run: dotnet build --configuration Release --no-restore apis/poi/poi.sln
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal apis/poi/tests/UnitTests
-
+        java-version: 1.8
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+    - name: run tests
+      run: mvn test
+    
     - uses: actions/github-script@0.9.0
       if: failure()
       with:
