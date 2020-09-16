@@ -55,7 +55,7 @@ jobs:
         npm run test --if-present
 
     - name: build docker image
-      run: docker build . --file Dockerfile --tag ${{ IMAGENAME }}:$(date +%s)
+      run: docker build . --file Dockerfile --tag ${{ env.IMAGENAME }}:$(date +%s)
 
     - name: Login to ACR registry
       run: docker login https://openhackpdr15ay7acr.azurecr.io -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
