@@ -68,6 +68,6 @@ jobs:
           github.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
+            title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! Userprofile build ",
             body: body
           });
