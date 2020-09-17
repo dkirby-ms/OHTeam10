@@ -70,13 +70,13 @@ jobs:
         # Push Image to ACR
         docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
 
+    # change this to update staging slot instead of production
     - name: update ASE with new image
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AS_POI_PUBLISHPROFILE }}
         images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
-
     - uses: actions/github-script@0.9.0
       if: failure()
       with:
@@ -89,3 +89,24 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! - POI Deploy ",
             body: body
           });
+
+  # add new step of validation of healthy poi api
+  validate:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps: 
+      - name: Probe POI endpoint health
+      - run: |
+          apt install jq
+          sleep -s 60
+          status=$(curl https://openhackpdr15ay7poi.azurewebsites.net/api/healthcheck/poi)
+          if [ '$status' != 'Healthy' ]
+          then
+            exit 1
+          fi
+  # # swap staging slot
+  # swap:
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   steps:
+
