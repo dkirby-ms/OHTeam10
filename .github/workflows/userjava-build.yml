@@ -11,6 +11,14 @@ on:
     paths:
       - 'apis/user-java/**'
       - '.github/workflows/userjava-build.yml'
+
+env:
+  AZURE_WEBAPP_NAME: openhackpdr15ay7userjava    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '10.x'                # set this to the node version to use
+  IMAGE_NAME: 'devopsoh/api-user-java'
+  ACRURI: 'openhackpdr15ay7acr.azurecr.io'
+
 jobs:
 
   build:
@@ -30,6 +38,25 @@ jobs:
       run: mvn -B package --file pom.xml
     - name: run tests
       run: mvn test
+
+    - name: build docker image and push to ACR
+      run: |
+        # Login to ACR
+        docker login https://${{ env.ACRURI }} -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+        
+        # Build the image
+        # IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}
+        docker build ./apis/user-java --file Dockerfile --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
+
+        # Push Image to ACR
+        docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
+
+    - name: update ASE with new image
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AS_USERJAVA_PUBLISHPROFILE }}
+        images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}  
     
     - uses: actions/github-script@0.9.0
       if: failure()
