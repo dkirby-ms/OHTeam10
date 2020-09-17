@@ -100,8 +100,8 @@ jobs:
         run: |
           sudo apt install jq
           sleep 120s
-          status=$(curl https://openhackpdr15ay7poi.azurewebsites.net/api/healthcheck/poi)
-          if [ '$status' != 'Healthy' ]
+          status=$(curl https://openhackpdr15ay7poi.azurewebsites.net/api/healthcheck/poi | jq '.status' | sed 's/"//g')
+          if [ $status != 'Healthy' ]
           then
             echo 'Not Healthy, exiting...'
             exit 1
