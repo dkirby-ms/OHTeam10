@@ -94,9 +94,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     needs: deploy
-    steps: 
+    steps:
+      - uses: actions/checkout@v2
       - name: Probe POI endpoint health
-      - run: |
+        run: |
           apt install jq
           sleep -s 60
           status=$(curl https://openhackpdr15ay7poi.azurewebsites.net/api/healthcheck/poi)
