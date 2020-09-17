@@ -13,8 +13,7 @@ on:
       - '.github/workflows/poi-build.yml'
 
 env:
-  AZURE_WEBAPP_NAME_PROD: openhackpdr15ay7poi    # set this to your application's name
-  AZURE_WEBAPP_NAME_STAGING: openhackpdr15ay7poi-staging
+  AZURE_WEBAPP_NAME: openhackpdr15ay7poi    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '10.x'                # set this to the node version to use
   IMAGE_NAME: 'devopsoh/api-poi'
@@ -76,7 +75,7 @@ jobs:
     - name: update ASE with new image
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME_PROD }}
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AS_POISTAGING_PUBLISHPROFILE }}
         images: ${{ env.ACRURI }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
     - uses: actions/github-script@0.9.0
@@ -116,7 +115,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - run: |
-        az webapp deployment slot swap  -g $RESOURCE_GROUP -n $AZURE_WEBAPP_NAME_PROD --slot staging \
-        --target-slot production
+        az webapp deployment slot swap  -g $RESOURCE_GROUP -n $AZURE_WEBAPP_NAME --slot staging --target-slot production
 
 
