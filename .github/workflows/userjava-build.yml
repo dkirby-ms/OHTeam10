@@ -46,7 +46,7 @@ jobs:
         
         # Build the image
         # IMAGEID=${{ env.ACRURI }}/${{ env.IMAGE_NAME }}
-        docker build ./apis/user-java --file Dockerfile --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
+        docker build ./apis/user-java --tag $ACRURI/$IMAGE_NAME:${{ github.run_number }} --build-arg build_version=${{ github.run_number }}
 
         # Push Image to ACR
         docker push $ACRURI/$IMAGE_NAME:${{ github.run_number }}
